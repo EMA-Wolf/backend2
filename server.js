@@ -46,6 +46,13 @@ const pool = new Pool({
       require: true,
     },
   });
+
+pool.connect((err) => {
+    if (err) {
+        throw err;
+    }
+    console.log('Connected to database');
+});
   
   // Test endpointz
   app.get('/', async (req, res) => {
