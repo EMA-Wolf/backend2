@@ -42,7 +42,10 @@ const pool = new Pool({
     password: process.env.DB_PASSWORD,
     database: process.env.DB_DBNAME,
     port: process.env.DB_PORT||5431,
-    endpoint:process.env.ENDPOINT_ID
+    ssl: 'require',
+    connection: {
+      options: `project=${ENDPOINT_ID}`,
+    },
   });
   
   // Test endpoint
