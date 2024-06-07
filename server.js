@@ -42,9 +42,9 @@ const pool = new Pool({
     password: process.env.DB_PASSWORD,
     database: process.env.DB_DBNAME,
     port: process.env.DB_PORT,
-    ssl: {
-      require: true,
-    },
+    // ssl: {
+    //   require: true,
+    // },
   });
 
 pool.connect((err) => {
