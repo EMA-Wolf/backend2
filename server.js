@@ -58,7 +58,7 @@ const sql = postgres({
   // Test endpointz
   app.get('/', async (req, res) => {
     try {
-      const results = await sql.query('SELECT * FROM contacts');
+      const results = await sql`SELECT * FROM contacts`;
       if (results.rows.length > 0) {
         res.json(results.rows);
       } else {
@@ -73,3 +73,4 @@ const PORT = process.env.PORT||3001;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
