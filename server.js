@@ -49,9 +49,8 @@ const pool = new Pool({
   
   // Test endpointz
   app.get('/', async (req, res) => {
-    const client = pool.connect()
     try {
-      const results = await client.query('SELECT * FROM contacts');
+      const results = await pool.query('SELECT * FROM contacts');
       if (results.rows.length > 0) {
         res.json(results.rows);
       } else {
