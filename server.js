@@ -44,7 +44,7 @@ const pool = new Pool({
     port: process.env.DB_PORT||5431,
     ssl: 'require',
     connection: {
-      options: `project=${ENDPOINT_ID}`,
+      options: ENDPOINT_ID,
     },
   });
   
