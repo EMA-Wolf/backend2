@@ -10,9 +10,9 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 // Middleware
-// app.use(cors());;
-// app.use(bodyParser.urlencoded({ extended: true }));
-// app.use(bodyParser.json());
+app.use(cors());;
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
 // const db = mysql.createConnection({
 //     host: process.env.DB_HOST,
