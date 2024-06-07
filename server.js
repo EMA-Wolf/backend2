@@ -43,9 +43,6 @@ const pool = new Pool({
     database: process.env.DB_DBNAME,
     port: process.env.DB_PORT||5431,
     ssl: 'require',
-    connection: {
-      options: `project=${ENDPOINT_ID}`,
-    },
   });
   
   // Test endpointz
