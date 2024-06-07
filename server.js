@@ -1,7 +1,10 @@
 const express = require('express');
 const app = express();
+
 // const mysql = require('mysql');
-const { Pool } = require('pg');
+// const { Pool } = require('pg');
+const mongoose = require('mongoose')
+
 const cors = require("cors");
 const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
@@ -36,39 +39,83 @@ app.use(bodyParser.json());
 
 
 // Create a PostgreSQL pool connection
-const pool = new Pool({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USERNAME,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_DBNAME,
-    port: process.env.DB_PORT,
-    ssl: {
-      require: true,
-    },
-    connectionTimeoutMillis: 30000, // 30 seconds
-    idleTimeoutMillis: 30000, // 30 seconds
-  });
+// const pool = new Pool({
+//     host: process.env.DB_HOST,
+//     user: process.env.DB_USERNAME,
+//     password: process.env.DB_PASSWORD,
+//     database: process.env.DB_DBNAME,
+//     port: process.env.DB_PORT,
+//     ssl: {
+//       require: true,
+//     },
+//     connectionTimeoutMillis: 30000, // 30 seconds
+//     idleTimeoutMillis: 30000, // 30 seconds
+//   });
 
-pool.connect((err) => {
-    if (err) {
-        console.log(err);
-    }
-    console.log('Connected to database');
-});
+// pool.connect((err) => {
+//     if (err) {
+//         console.log(err);
+//     }
+//     console.log('Connected to database');
+// });
   
+
+
+
+//Create mongoosedb atlas connection
+const connectDB = async ()=>{
+  try{
+    await mongoose.connect(process.env.MONGOBD_CONNECT_URL)
+    console.log("Connect to MongoDB successfully")
+  }catch(error){
+    console.log(`Connection failed: ${error.message} `)
+  }
+}
+
+connectDB()
+
+
+
+
+
+// Define a Mongoose schema and model for contacts
+const detailSchema = new mongoose.Schema({
+  name: String,
+  email: String,
+  phone: String,
+  address: String,
+  access_number: String,
+});
+
+const Detail = mongoose.model('vcards', detailSchema, 'details');
+
+// Test endpoint
+app.get('/', async (req, res) => {
+  try {
+    const results = await Detail.find();
+    console.log(results)
+    res.json(results)
+  } catch (err) {
+    console.log(err)
+    res.status(500).json(err);
+  }
+});
+
+
+
   // Test endpointz
-  app.get('/', async (req, res) => {
-    try {
-      const results = await pool.query('SELECT * FROM contacts');
-      if (results.rows.length > 0) {
-        res.json(results.rows);
-      } else {
-        res.json('Failed');
-      }
-    } catch (err) {
-      res.json(err);
-    }
-  });
+  // app.get('/', async (req, res) => {
+  //   try {
+  //     const results = await pool.query('SELECT * FROM contacts');
+  //     if (results.rows.length > 0) {
+  //       res.json(results.rows);
+  //     } else {
+  //       res.json('Failed');
+  //     }
+  //   } catch (err) {
+  //     res.json(err);
+  //   }
+  // });
 
 const PORT = process.env.PORT||3001;
 app.listen(PORT, () => {
