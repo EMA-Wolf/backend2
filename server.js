@@ -49,7 +49,7 @@ const pool = new Pool({
 
 pool.connect((err) => {
     if (err) {
-        throw err;
+        console.log(err);
     }
     console.log('Connected to database');
 });
