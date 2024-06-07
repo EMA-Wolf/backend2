@@ -58,7 +58,7 @@ const sql = postgres({
   // Test endpointz
   app.get('/', async (req, res) => {
     try {
-      const results = await sql`SELECT * FROM contacts`;
+      const results = await sql`select * FROM contacts`;
       if (results.rows.length > 0) {
         res.json(results.rows);
       } else {
