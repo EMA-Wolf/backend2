@@ -101,6 +101,35 @@ app.get('/', async (req, res) => {
   }
 });
 
+app.post('/', async (req, res) => {
+  try {
+    const results = await Detail.create();
+    console.log(results)
+    res.json(results)
+  } catch (err) {
+    console.log(err)
+    res.status(500).json(err);
+  }
+});
+
+app.post('/add', async (req, res) => {
+  try {
+    const { name, email, phone, address, access_number } = req.body;
+    const newDetail = new Detail({
+      name,
+      email,
+      phone,
+      address,
+      access_number,
+    });
+    const savedDetail = await newDetail.save();
+    console.log(savedDetail);
+    res.status(201).json(savedDetail);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
+  }
+});
 
 
   // Test endpointz
