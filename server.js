@@ -1,8 +1,7 @@
 const express = require('express');
 const app = express();
 // const mysql = require('mysql');
-// const { Pool } = require('pg');
-const postgres = require('postgres');
+const { Pool } = require('pg');
 const cors = require("cors");
 const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
@@ -11,9 +10,9 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 // Middleware
-app.use(cors());;
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+// app.use(cors());;
+// app.use(bodyParser.urlencoded({ extended: true }));
+// app.use(bodyParser.json());
 
 // const db = mysql.createConnection({
 //     host: process.env.DB_HOST,
@@ -37,28 +36,22 @@ app.use(bodyParser.json());
 
 
 // Create a PostgreSQL pool connection
-// const pool = new Pool({
-//     host: process.env.DB_HOST,
-//     user: process.env.DB_USERNAME,
-//     password: process.env.DB_PASSWORD,
-//     database: process.env.DB_DBNAME,
-//     port: process.env.DB_PORT||5431,
-//     ssl: 'require',
-//   });
-
-const sql = postgres({
-  host: process.env.DB_HOST,
+const pool = new Pool({
+    host: process.env.DB_HOST,
     user: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_DBNAME,
     port: process.env.DB_PORT||5431,
-    ssl: 'require',
-});
+    ssl: {
+      require: true,
+    },
+  });
   
   // Test endpointz
   app.get('/', async (req, res) => {
+    const client = pool.connect()
     try {
-      const results = await sql`select * FROM contacts`;
+      const results = await client.query('SELECT * FROM contacts');
       if (results.rows.length > 0) {
         res.json(results.rows);
       } else {
@@ -73,4 +66,3 @@ const PORT = process.env.PORT||3001;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
-
