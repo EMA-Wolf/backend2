@@ -87,8 +87,23 @@ const detailSchema = new mongoose.Schema({
   access_number: String,
 });
 
-const Detail = mongoose.model('vcards', detailSchema, 'details');
+// Define a Mongoose schema and model for contacts
+const contactsSchema = new mongoose.Schema({
+  fullName: String,
+  userName: String,
+  phone: String,
+  email: String,
+  password: String,
+  address: String,
+  role: String,
+});
 
+
+
+const Detail = mongoose.model('vcards', detailSchema, 'details');
+const Contacts = mongoose.model('cards',contactsSchema,'contacts')
+
+//Get Request
 // Test endpoint
 app.get('/', async (req, res) => {
   try {
@@ -101,6 +116,20 @@ app.get('/', async (req, res) => {
   }
 });
 
+app.get('/contacts', async (req,res) =>{
+  try{
+    const results = await Contacts.find()
+    console.log(results)
+    res.json(results)
+  }catch(err){
+      console.log(err)
+      res.status(500).json(err)
+  }
+})
+
+
+
+//POST Request
 app.post('/', async (req, res) => {
   try {
     const results = await Detail.create();
@@ -130,6 +159,28 @@ app.post('/add', async (req, res) => {
     res.status(500).json(err);
   }
 });
+
+app.post('/newContacts',async (req,res)=>{
+  try{
+    const{fullName,userName,phone, email,password,address,role} = req.body
+    const newContacts = new Contacts({
+      fullName,
+      userName,
+      phone,
+      email,
+      password,
+      address,
+      role
+    })
+
+    const savedResults = await newContacts.save()
+    console.log(savedResults)
+    res.status(201).json(savedResults)
+  }catch(err){
+    console.log(err)
+    res.status(500).json(err)
+  }
+})
 
 
   // Test endpointz
