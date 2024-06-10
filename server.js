@@ -1,20 +1,19 @@
-const express = require('express');
+const express = require("express");
 const app = express();
-const bcrypt = require('bcrypt');
+const bcrypt = require("bcrypt");
 
 // const mysql = require('mysql');
 // const { Pool } = require('pg');
-const mongoose = require('mongoose')
-
+const mongoose = require("mongoose");
 const cors = require("cors");
-const bodyParser = require('body-parser');
-const dotenv = require('dotenv');
-
+const bodyParser = require("body-parser");
+const dotenv = require("dotenv");
+const vCardsJS = require('vcards-js')
 // Load environment variables from .env file
 dotenv.config();
 
 // Middleware
-app.use(cors());;
+app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
@@ -24,7 +23,6 @@ app.use(bodyParser.json());
 //     password:process.env.DB_PASSWORD,
 //     database:process.env.DB_DBNAME
 // });
-
 
 // app.get("/", (req, res) => {
 //     const sql = "SELECT * FROM `details`";
@@ -37,7 +35,6 @@ app.use(bodyParser.json());
 //         }
 //     });
 // });
-
 
 // Create a PostgreSQL pool connection
 // const pool = new Pool({
@@ -59,25 +56,18 @@ app.use(bodyParser.json());
 //     }
 //     console.log('Connected to database');
 // });
-  
-
-
 
 //Create mongoosedb atlas connection
-const connectDB = async ()=>{
-  try{
-    await mongoose.connect(process.env.MONGOBD_CONNECT_URL)
-    console.log("Connect to MongoDB successfully")
-  }catch(error){
-    console.log(`Connection failed: ${error.message} `)
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGOBD_CONNECT_URL);
+    console.log("Connect to MongoDB successfully");
+  } catch (error) {
+    console.log(`Connection failed: ${error.message} `);
   }
-}
+};
 
-connectDB()
-
-
-
-
+connectDB();
 
 // Define a Mongoose schema and model for contacts
 const detailSchema = new mongoose.Schema({
@@ -99,50 +89,97 @@ const contactsSchema = new mongoose.Schema({
   role: String,
 });
 
-
-
-const Detail = mongoose.model('vcards', detailSchema, 'details');
-const Contacts = mongoose.model('cards',contactsSchema,'contacts')
+const Detail = mongoose.model("vcards", detailSchema, "details");
+const Contacts = mongoose.model("cards", contactsSchema, "contacts");
 
 //Get Request
+
+//Api to get all Details in the details table
 // Test endpoint
-app.get('/', async (req, res) => {
+app.get("/", async (req, res) => {
   try {
     const results = await Detail.find();
-    console.log(results)
-    res.json(results)
+    console.log(results);
+    res.json(results);
   } catch (err) {
-    console.log(err)
+    console.log(err);
     res.status(500).json(err);
   }
 });
 
-app.get('/contacts', async (req,res) =>{
+//Api to get all Contacts in the contacts table
+app.get("/contacts", async (req, res) => {
+  try {
+    const results = await Contacts.find({},`-password -userName`);
+    console.log(results);
+    res.json(results);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
+  }
+});
+
+app.get('/contacts/:userName',async (req,res)=>{
   try{
-    const results = await Contacts.find()
+     userName = req.params.userName
+    const results = await Contacts.find({ userName },'-password')
+
+    if(!results){
+      return res.status(400).json("User not found" ); 
+    }
+    
     console.log(results)
     res.json(results)
   }catch(err){
-      console.log(err)
-      res.status(500).json(err)
+    console.log(err);
+    res.status(500).json(err);
   }
 })
 
 
-
-//POST Request
-app.post('/', async (req, res) => {
+app.get('/vcard/:userName', async (req, res) => {
   try {
-    const results = await Detail.create();
-    console.log(results)
-    res.json(results)
+     userName = req.params.userName;
+
+    // Fetch contact details from database using the contactId
+    const contact = await Contacts.findOne({userName});
+
+    if (!contact) {
+      return res.status(404).json({ message: 'Contact not found' });
+    }
+
+    const vCard = vCardsJS();
+    vCard.firstName = contact.fullName;
+    vCard.email = contact.email;
+    vCard.cellPhone = contact.phone;
+    vCard.workPhone = contact.phone;
+    vCard.homeAddress = contact.address;
+    vCard.title = contact.role;
+
+    // Set response headers to download the vCard
+    res.setHeader('Content-Type', 'text/vcard');
+    res.setHeader('Content-Disposition', `attachment; filename=${contact.fullName}.vcf`);
+    res.send(vCard.getFormattedString());
   } catch (err) {
-    console.log(err)
+    console.log(err);
     res.status(500).json(err);
   }
 });
 
-app.post('/add', async (req, res) => {
+            //POST Request
+// app.post('/', async (req, res) => {
+//   try {
+//     const results = await Detail.create();
+//     console.log(results)
+//     res.json(results)
+//   } catch (err) {
+//     console.log(err)
+//     res.status(500).json(err);
+//   }
+// });
+
+//Api to add new details to the details table
+app.post("/add", async (req, res) => {
   try {
     const { name, email, phone, address, access_number } = req.body;
     const newDetail = new Detail({
@@ -161,47 +198,71 @@ app.post('/add', async (req, res) => {
   }
 });
 
-app.post('/newContacts',async (req,res)=>{
-  try{
-    const{fullName,userName,phone, email,password,address,role} = req.body
+//Api to add an new Contact to the database
+app.post("/newContacts", async (req, res) => {
+  try {
 
-    const hashedPassword = await bcrypt.hash(password,13)
+     req.body.password = await bcrypt.hash(req.body.password, 13);
 
-    const newContacts = new Contacts({
-      fullName,
-      userName,
-      phone,
-      email,
-      password: hashedPassword,
-      address,
-      role
-    })
-
-    const savedResults = await newContacts.save()
-    console.log(savedResults)
-    res.status(201).json(savedResults)
-  }catch(err){
-    console.log(err)
-    res.status(500).json(err)
+    const newContacts = new Contacts(req.body)
+    const savedResults = await newContacts.save();
+    console.log(savedResults);
+    res.status(201).json(savedResults);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
   }
-})
+});
 
 
-  // Test endpointz
-  // app.get('/', async (req, res) => {
-  //   try {
-  //     const results = await pool.query('SELECT * FROM contacts');
-  //     if (results.rows.length > 0) {
-  //       res.json(results.rows);
-  //     } else {
-  //       res.json('Failed');
-  //     }
-  //   } catch (err) {
-  //     res.json(err);
-  //   }
-  // });
+//Api to compare the email and password to that in the database and returns any entry match those fields
+app.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
-const PORT = process.env.PORT||3001;
+    // Find the user by email
+    const user = await Contacts.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
+    }
+
+    // Compare the entered password with the hashed password in the database
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+
+    // If the password matches, return the user details
+    res.status(200).json({
+      user,
+      // fullName: user.fullName,
+      // userName: user.userName,
+      // phone: user.phone,
+      // email: user.email,
+      // address: user.address,
+      // role: user.role,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
+  }
+});
+
+// Test endpointz
+// app.get('/', async (req, res) => {
+//   try {
+//     const results = await pool.query('SELECT * FROM contacts');
+//     if (results.rows.length > 0) {
+//       res.json(results.rows);
+//     } else {
+//       res.json('Failed');
+//     }
+//   } catch (err) {
+//     res.json(err);
+//   }
+// });
+
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
