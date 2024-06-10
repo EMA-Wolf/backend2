@@ -1,5 +1,6 @@
 const express = require('express');
 const app = express();
+import bcrypt from 'bcrypt'
 
 // const mysql = require('mysql');
 // const { Pool } = require('pg');
@@ -163,12 +164,15 @@ app.post('/add', async (req, res) => {
 app.post('/newContacts',async (req,res)=>{
   try{
     const{fullName,userName,phone, email,password,address,role} = req.body
+
+    const hashedPassword = await bcrypt.hash(password,13)
+
     const newContacts = new Contacts({
       fullName,
       userName,
       phone,
       email,
-      password,
+      hashedPassword,
       address,
       role
     })
