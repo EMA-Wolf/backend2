@@ -166,6 +166,21 @@ app.get('/vcard/:userName', async (req, res) => {
   }
 });
 
+
+/////
+
+app.get('/qr-redirect', (req, res) => {
+  const userAgent = req.headers['user-agent'];
+
+  if (/mobile|android|iphone|ipad/i.test(userAgent)) {
+    // User agent indicates a phone
+    res.redirect('https://backend2-0weq.onrender.com/contacts/MT');
+  } else {
+    // User agent indicates a sensor or other device
+    res.redirect('https://backend2-0weq.onrender.com/contacts');
+  }
+});
+
             //POST Request
 // app.post('/', async (req, res) => {
 //   try {
