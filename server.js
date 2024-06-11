@@ -201,7 +201,7 @@ app.get('/qr-redirect/:username', async (req, res) => {
     }
 
     // Create a vCard
-    const vCard = vCardJS();
+    const vCard = vCardsJS();
     vCard.firstName = contact.fullName;
     vCard.cellPhone = contact.phone;
     vCard.email = contact.email;
