@@ -210,7 +210,7 @@ app.get('/qr-redirect/:username', async (req, res) => {
 
     // Set the headers for vCard download
     // res.setHeader('Content-Type', 'text/vcard');
-      res.setHeader('Content-Type', 'text/vcard; charset=utf-8');
+      res.setHeader('Content-Type', 'text/plain; charset=utf-8');
     // res.setHeader('Content-Disposition', `attachment; filename=${contact.fullName}.vcf`);
 
     // Send the vCard as a response
