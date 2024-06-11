@@ -169,15 +169,54 @@ app.get('/vcard/:userName', async (req, res) => {
 
 /////
 
-app.get('/qr-redirect', (req, res) => {
+// app.get('/qr-redirect', (req, res) => {
+//   const userAgent = req.headers['user-agent'];
+
+//   if (/mobile|android|iphone|ipad/i.test(userAgent)) {
+//     // User agent indicates a phone
+//     res.redirect('https://backend2-0weq.onrender.com/contacts/MT');
+//   } else {
+//     // User agent indicates a sensor or other device
+//     res.redirect('https://backend2-0weq.onrender.com/contacts');
+//   }
+// });
+
+app.get('/qr-redirect/:username', async (req, res) => {
+
   const userAgent = req.headers['user-agent'];
+  let userName 
 
   if (/mobile|android|iphone|ipad/i.test(userAgent)) {
     // User agent indicates a phone
-    res.redirect('https://backend2-0weq.onrender.com/contacts/MT');
+    userName = req.params.username;
   } else {
     // User agent indicates a sensor or other device
-    res.redirect('https://backend2-0weq.onrender.com/contacts');
+    userName = ''; // Use the appropriate ID or criteria for sensors
+  }
+
+  try {
+    const contact = await Contacts.findOne({userName});
+    if (!contact) {
+      return res.status(404).json({ message: 'Contact not found' });
+    }
+
+    // Create a vCard
+    const vCard = vCardJS();
+    vCard.firstName = contact.fullName;
+    vCard.cellPhone = contact.phone;
+    vCard.email = contact.email;
+    vCard.workAddress = contact.address;
+    vCard.title = contact.role;
+
+    // Set the headers for vCard download
+    res.setHeader('Content-Type', 'text/vcard');
+    res.setHeader('Content-Disposition', `attachment; filename=${contact.fullName}.vcf`);
+
+    // Send the vCard as a response
+    res.send(vCard.getFormattedString());
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
