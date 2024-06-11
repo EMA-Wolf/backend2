@@ -211,10 +211,11 @@ app.get('/qr-redirect/:username', async (req, res) => {
     // Set the headers for vCard download
     // res.setHeader('Content-Type', 'text/vcard');
       res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-    // res.setHeader('Content-Disposition', `attachment; filename=${contact.fullName}.vcf`);
+    res.setHeader('Content-Disposition', `inline; filename=${contact.fullName}.vcf`);
 
     // Send the vCard as a response
-    res.send(vCard.getFormattedString());
+    // res.send(vCard.getFormattedString());
+    res.send(vCard);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });
