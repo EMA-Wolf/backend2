@@ -140,7 +140,7 @@ app.get('/contacts/:userName',async (req,res)=>{
 app.get('/qr-redirect/:username', async (req, res) => {
   const userAgent = req.headers['user-agent'];
   const userName = req.params.username;
-  
+
 if (/mobile|android|iphone|ipad/i.test(userAgent)) {
   // User agent indicates a phone
   try {
@@ -184,11 +184,6 @@ if (/mobile|android|iphone|ipad/i.test(userAgent)) {
   }
 }
 });
-
-
-
-
-
 
 
 
@@ -266,9 +261,10 @@ app.get('/qr-redirect/:username', async (req, res) => {
     vCard.title = contact.role;
 
     // Set the headers for vCard download
-    // res.setHeader('Content-Type', 'text/vcard');
-      res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-    res.setHeader('Content-Disposition', `inline; filename=${contact.fullName}.vcf`);
+    res.setHeader('Content-Type', 'text/vcard');
+      // res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    // res.setHeader('Content-Disposition', `inline; filename=${contact.fullName}.vcf`);
+    res.setHeader('Content-Disposition', `attachment; filename=${contact.fullName}.vcf`);
 
     // Send the vCard as a response
     // res.send(vCard.getFormattedString());
