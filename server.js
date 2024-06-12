@@ -187,8 +187,8 @@ if (/mobile|iphone|ipad/i.test(userAgent)) {
     vCard.title = contact.role;
 
     // Set the headers for vCard download
-    res.setHeader('Content-Type', 'text/vcard; charset=utf-8');
-    // res.setHeader('Content-Disposition', `inline; filename=${contact.fullName}.vcf`);
+    res.setHeader('Content-Type', 'text/vcard');
+    res.setHeader('Content-Disposition', `inline; filename=${contact.fullName}.vcf`);
     // res.setHeader('Content-Disposition', `attachment; filename=${contact.fullName}.vcf`);
 
     // Send the vCard as a response
