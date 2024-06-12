@@ -161,8 +161,8 @@ if (/mobile|android|iphone|ipad/i.test(userAgent)) {
     // Set the headers for vCard download
     // res.setHeader('Content-Type', 'text/plain; charset=utf-8');
     res.setHeader('Content-Type', 'text/vcard; charset=utf-8');
-    // res.setHeader('Content-Disposition', `inline; filename=${contact.fullName}.vcf`);
-    res.setHeader('Content-Disposition', `attachment; filename=${contact.fullName}.vcf`);
+    res.setHeader('Content-Disposition', `inline; filename=${contact.fullName}.vcf`);
+    // res.setHeader('Content-Disposition', `attachment; filename=${contact.fullName}.vcf`);
 
     // Send the vCard as a response
     res.send(vCard.getFormattedString());
