@@ -136,35 +136,90 @@ app.get('/contacts/:userName',async (req,res)=>{
   }
 })
 
-
-app.get('/vcard/:userName', async (req, res) => {
+//Api to download contact details as a vcard
+app.get('/qr-redirect/:username', async (req, res) => {
+  const userAgent = req.headers['user-agent'];
+  const userName = req.params.username;
+  
+if (/mobile|android|iphone|ipad/i.test(userAgent)) {
+  // User agent indicates a phone
   try {
-     userName = req.params.userName;
-
-    // Fetch contact details from database using the contactId
-    const contact = await Contacts.findOne({userName});
-
+    const contact = await Contacts.findOne({ userName });
+  
     if (!contact) {
       return res.status(404).json({ message: 'Contact not found' });
     }
 
+    // Create a vCard
     const vCard = vCardsJS();
     vCard.firstName = contact.fullName;
-    vCard.email = contact.email;
     vCard.cellPhone = contact.phone;
-    vCard.workPhone = contact.phone;
-    vCard.homeAddress = contact.address;
+    vCard.email = contact.email;
+    vCard.workAddress = contact.address;
     vCard.title = contact.role;
 
-    // Set response headers to download the vCard
-    res.setHeader('Content-Type', 'text/vcard');
-    res.setHeader('Content-Disposition', `attachment; filename=${contact.fullName}.vcf`);
+    // Set the headers for vCard download
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.setHeader('Content-Disposition', `inline; filename=${contact.fullName}.vcf`);
+
+    // Send the vCard as a response
     res.send(vCard.getFormattedString());
   } catch (err) {
-    console.log(err);
-    res.status(500).json(err);
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
   }
+} else {
+  // User agent indicates a sensor or other device
+  try {
+    const contact = await Contacts.findOne({ userName });
+    
+    if (contact) {
+      return res.status(200).json(true);
+    } else {
+      return res.status(200).json(false);
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+}
 });
+
+
+
+
+
+
+
+
+// app.get('/vcard/:userName', async (req, res) => {
+//   try {
+//      userName = req.params.userName;
+
+//     // Fetch contact details from database using the contactId
+//     const contact = await Contacts.findOne({userName});
+
+//     if (!contact) {
+//       return res.status(404).json({ message: 'Contact not found' });
+//     }
+
+//     const vCard = vCardsJS();
+//     vCard.firstName = contact.fullName;
+//     vCard.email = contact.email;
+//     vCard.cellPhone = contact.phone;
+//     vCard.workPhone = contact.phone;
+//     vCard.homeAddress = contact.address;
+//     vCard.title = contact.role;
+
+//     // Set response headers to download the vCard
+//     res.setHeader('Content-Type', 'text/vcard');
+//     res.setHeader('Content-Disposition', `attachment; filename=${contact.fullName}.vcf`);
+//     res.send(vCard.getFormattedString());
+//   } catch (err) {
+//     console.log(err);
+//     res.status(500).json(err);
+//   }
+// });
 
 
 /////
@@ -181,6 +236,7 @@ app.get('/vcard/:userName', async (req, res) => {
 //   }
 // });
 
+//Api to get contact details of a user from the `:username` params and convert the details to a vcard and download directly
 app.get('/qr-redirect/:username', async (req, res) => {
 
   const userAgent = req.headers['user-agent'];
@@ -196,6 +252,7 @@ app.get('/qr-redirect/:username', async (req, res) => {
 
   try {
     const contact = await Contacts.findOne({userName});
+
     if (!contact) {
       return res.status(404).json({ message: 'Contact not found' });
     }
