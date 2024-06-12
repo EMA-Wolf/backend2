@@ -141,7 +141,7 @@ app.get('/qr-redirect/:username', async (req, res) => {
   const userAgent = req.headers['user-agent'];
   const userName = req.params.username;
 
-if (/mobile|android|iphone|ipad/i.test(userAgent)) {
+if (/mobile|iphone|ipad/i.test(userAgent)) {
   // User agent indicates a phone
   try {
     const contact = await Contacts.findOne({ userName });
@@ -170,7 +170,34 @@ if (/mobile|android|iphone|ipad/i.test(userAgent)) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });
   }
-} else {
+} else if(/mobile|android/i.test(userAgent)){
+  try {
+    const contact = await Contacts.findOne({ userName });
+  
+    if (!contact) {
+      return res.status(404).json({ message: 'Contact not found' });
+    }
+
+    // Create a vCard
+    const vCard = vCardsJS();
+    vCard.firstName = contact.fullName;
+    vCard.cellPhone = contact.phone;
+    vCard.email = contact.email;
+    vCard.workAddress = contact.address;
+    vCard.title = contact.role;
+
+    // Set the headers for vCard download
+    res.setHeader('Content-Type', 'text/vcard; charset=utf-8');
+    // res.setHeader('Content-Disposition', `inline; filename=${contact.fullName}.vcf`);
+    // res.setHeader('Content-Disposition', `attachment; filename=${contact.fullName}.vcf`);
+
+    // Send the vCard as a response
+    res.send(vCard.getFormattedString());
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+}else {
   // User agent indicates a sensor or other device
   try {
     const contact = await Contacts.findOne({ userName });
