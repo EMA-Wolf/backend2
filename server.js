@@ -159,13 +159,36 @@ if (/mobile|iphone|ipad/i.test(userAgent)) {
     vCard.title = contact.role;
 
     // Set the headers for vCard download
-    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    // res.setHeader('Content-Type', 'text/plain; charset=utf-8');
     // res.setHeader('Content-Type', 'text/vcard; charset=utf-8');
-    res.setHeader('Content-Disposition', `inline; filename=${contact.fullName}.vcf`);
+    // res.setHeader('Content-Disposition', `inline; filename=${contact.fullName}.vcf`);
     // res.setHeader('Content-Disposition', `attachment; filename=${contact.fullName}.vcf`);
 
     // Send the vCard as a response
-    res.send(vCard.getFormattedString());
+    // res.send(vCard.getFormattedString());
+
+    const vCardString = vCard.getFormattedString();
+    const base64VCard = Buffer.from(vCardString).toString('base64');
+    const dataUri = `data:text/vcard;base64,${base64VCard}`;
+
+    // Set the headers to open the vCard directly in a new tab
+    res.setHeader('Content-Type', 'text/html');
+    res.send(`
+      <!DOCTYPE html>
+      <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Download Contact</title>
+        </head>
+        <body>
+          <a href="${dataUri}" download="${contact.fullName}.vcf" id="download-link">Download vCard</a>
+          <script>
+            document.getElementById('download-link').click();
+          </script>
+        </body>
+      </html>
+    `);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });
