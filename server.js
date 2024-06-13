@@ -166,10 +166,45 @@ app.get('/qr-redirect/:username', async (req, res) => {
       res.send(vCardString);
     } else if (/android/i.test(userAgent)) {
       // User agent indicates an Android phone
-      const vCardUri = encodeURIComponent(vCardString);
-      const intentUri = `intent://create_contact/#Intent;scheme=data;action=android.intent.action.INSERT;type=text/x-vcard;S.vcard=${vCardUri};end`;
+      // const vCardUri = encodeURIComponent(vCardString);
+      // const intentUri = `intent://create_contact/#Intent;scheme=data;action=android.intent.action.INSERT;type=text/x-vcard;S.vcard=${vCardUri};end`;
 
-      res.send(intentUri);
+      const formHtml = `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Add Contact</title>
+      </head>
+      <body>
+        <h1>Add Contact</h1>
+        <form id="contact-form">
+          <label for="name">Name:</label><br>
+          <input type="text" id="name" name="name" value="${contact.fullName}" readonly><br>
+          <label for="phone">Phone:</label><br>
+          <input type="text" id="phone" name="phone" value="${contact.phone}" readonly><br>
+          <label for="email">Email:</label><br>
+          <input type="text" id="email" name="email" value="${contact.email}" readonly><br>
+          <label for="address">Address:</label><br>
+          <input type="text" id="address" name="address" value="${contact.address}" readonly><br>
+          <label for="role">Role:</label><br>
+          <input type="text" id="role" name="role" value="${contact.role}" readonly><br><br>
+          <button type="button" onclick="addToContacts()">Add to contacts</button>
+        </form>
+        <script>
+          function addToContacts() {
+            const vCardData = \`${vCardString}\`;
+            const intentUri = \`intent://create_contact/#Intent;scheme=data;action=android.intent.action.INSERT;type=text/x-vcard;S.vcard=${vCardUri};end\`;
+            window.location.href = intentUri;
+          }
+        </script>
+      </body>
+      </html>
+    `;
+    res.send(formHtml);
+
+      // res.send(intentUri);
     } else {
       // User agent indicates a sensor or other device
       res.json(contact ? true : false);
