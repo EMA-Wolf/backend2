@@ -137,15 +137,14 @@ app.get('/contacts/:userName',async (req,res)=>{
 })
 
 //Api to download contact details as a vcard
+
 app.get('/qr-redirect/:username', async (req, res) => {
   const userAgent = req.headers['user-agent'];
   const userName = req.params.username;
 
-if (/mobile|iphone|ipad/i.test(userAgent)) {
-  // User agent indicates a phone
   try {
     const contact = await Contacts.findOne({ userName });
-  
+
     if (!contact) {
       return res.status(404).json({ message: 'Contact not found' });
     }
@@ -157,85 +156,129 @@ if (/mobile|iphone|ipad/i.test(userAgent)) {
     vCard.email = contact.email;
     vCard.workAddress = contact.address;
     vCard.title = contact.role;
-
-    // Set the headers for vCard download
-    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-    // res.setHeader('Content-Type', 'text/vcard; charset=utf-8');
-    res.setHeader('Content-Disposition', `inline; filename=${contact.fullName}.vcf`);
-    // res.setHeader('Content-Disposition', `attachment; filename=${contact.fullName}.vcf`);
-
-    // Send the vCard as a response
-    res.send(vCard.getFormattedString());
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Server error' });
-  }
-} else if(/mobile|android/i.test(userAgent)){
-  try {
-    const contact = await Contacts.findOne({ userName });
-  
-    if (!contact) {
-      return res.status(404).json({ message: 'Contact not found' });
-    }
-
-    // Create a vCard
-    const vCard = vCardsJS();
-    vCard.firstName = contact.fullName;
-    vCard.cellPhone = contact.phone;
-    vCard.email = contact.email;
-    vCard.workAddress = contact.address;
-    vCard.title = contact.role;
-
-    // Set the headers for vCard download
-    // res.setHeader('Content-Type', 'text/vcard');
-    // res.setHeader('Content-Disposition', `inline; filename=${contact.fullName}.vcf`);
-    // res.setHeader('Content-Disposition', `attachment; filename=${contact.fullName}.vcf`);
-
-    // Send the vCard as a response
-    // res.send(vCard.getFormattedString());
 
     const vCardString = vCard.getFormattedString();
-    const base64VCard = Buffer.from(vCardString).toString('base64');
-    const dataUri = `data:text/vcard;base64,${base64VCard}`;
 
-    // Set the headers to open the vCard directly in a new tab
-    res.setHeader('Content-Type', 'text/html');
-    res.send(`
-      <!DOCTYPE html>
-      <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Download Contact</title>
-        </head>
-        <body>
-          <a href="${dataUri}" download="${contact.fullName}.vcf" id="download-link">Download vCard</a>
-          <script>
-            document.getElementById('download-link').click();
-          </script>
-        </body>
-      </html>
-    `);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Server error' });
-  }
-}else {
-  // User agent indicates a sensor or other device
-  try {
-    const contact = await Contacts.findOne({ userName });
-    
-    if (contact) {
-      return res.status(200).json(true);
+    if (/mobile|iphone|ipad/i.test(userAgent)) {
+      // User agent indicates an iPhone
+      res.setHeader('Content-Type', 'text/vcard; charset=utf-8');
+      res.setHeader('Content-Disposition', `inline; filename=${contact.fullName}.vcf`);
+      res.send(vCardString);
+    } else if (/mobile|android/i.test(userAgent)) {
+      // User agent indicates an Android phone
+      const vCardUri = encodeURIComponent(vCardString);
+      const intentUri = `intent://create_contact/#Intent;scheme=data;action=android.intent.action.INSERT;type=text/x-vcard;S.vcard=${vCardUri};end`;
+
+      res.redirect(intentUri);
     } else {
-      return res.status(200).json(false);
+      // User agent indicates a sensor or other device
+      res.json(contact ? true : false);
     }
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });
   }
-}
 });
+
+// app.get('/qr-redirect/:username', async (req, res) => {
+//   const userAgent = req.headers['user-agent'];
+//   const userName = req.params.username;
+
+// if (/mobile|iphone|ipad/i.test(userAgent)) {
+//   // User agent indicates a phone
+//   try {
+//     const contact = await Contacts.findOne({ userName });
+  
+//     if (!contact) {
+//       return res.status(404).json({ message: 'Contact not found' });
+//     }
+
+//     // Create a vCard
+//     const vCard = vCardsJS();
+//     vCard.firstName = contact.fullName;
+//     vCard.cellPhone = contact.phone;
+//     vCard.email = contact.email;
+//     vCard.workAddress = contact.address;
+//     vCard.title = contact.role;
+
+//     // Set the headers for vCard download
+//     res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+//     // res.setHeader('Content-Type', 'text/vcard; charset=utf-8');
+//     res.setHeader('Content-Disposition', `inline; filename=${contact.fullName}.vcf`);
+//     // res.setHeader('Content-Disposition', `attachment; filename=${contact.fullName}.vcf`);
+
+//     // Send the vCard as a response
+//     res.send(vCard.getFormattedString());
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ message: 'Server error' });
+//   }
+// } else if(/mobile|android/i.test(userAgent)){
+//   try {
+//     const contact = await Contacts.findOne({ userName });
+  
+//     if (!contact) {
+//       return res.status(404).json({ message: 'Contact not found' });
+//     }
+
+//     // Create a vCard
+//     const vCard = vCardsJS();
+//     vCard.firstName = contact.fullName;
+//     vCard.cellPhone = contact.phone;
+//     vCard.email = contact.email;
+//     vCard.workAddress = contact.address;
+//     vCard.title = contact.role;
+
+//     // Set the headers for vCard download
+//     // res.setHeader('Content-Type', 'text/vcard');
+//     // res.setHeader('Content-Disposition', `inline; filename=${contact.fullName}.vcf`);
+//     // res.setHeader('Content-Disposition', `attachment; filename=${contact.fullName}.vcf`);
+
+//     // Send the vCard as a response
+//     // res.send(vCard.getFormattedString());
+
+//     const vCardString = vCard.getFormattedString();
+//     const base64VCard = Buffer.from(vCardString).toString('base64');
+//     const dataUri = `data:text/vcard;base64,${base64VCard}`;
+
+//     // Set the headers to open the vCard directly in a new tab
+//     res.setHeader('Content-Type', 'text/html');
+//     res.send(`
+//       <!DOCTYPE html>
+//       <html lang="en">
+//         <head>
+//           <meta charset="UTF-8">
+//           <meta name="viewport" content="width=device-width, initial-scale=1.0">
+//           <title>Download Contact</title>
+//         </head>
+//         <body>
+//           <a href="${dataUri}" download="${contact.fullName}.vcf" id="download-link">Download vCard</a>
+//           <script>
+//             document.getElementById('download-link').click();
+//           </script>
+//         </body>
+//       </html>
+//     `);
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ message: 'Server error' });
+//   }
+// }else {
+//   // User agent indicates a sensor or other device
+//   try {
+//     const contact = await Contacts.findOne({ userName });
+    
+//     if (contact) {
+//       return res.status(200).json(true);
+//     } else {
+//       return res.status(200).json(false);
+//     }
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ message: 'Server error' });
+//   }
+// }
+// });
 
 
 
@@ -427,3 +470,4 @@ const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+/* how about making it such that the if statement for android phones as soon as the file is done downloading it automatically opens the phone app of the user's phone and opens the new contact page there an fills the details in the new contact form on the phone app with the details from the vcard that was just downloaded*/
