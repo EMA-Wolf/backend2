@@ -159,12 +159,12 @@ app.get('/qr-redirect/:username', async (req, res) => {
 
     const vCardString = vCard.getFormattedString();
 
-    if (/mobile|iphone|ipad/i.test(userAgent)) {
+    if (/iphone|ipad/i.test(userAgent)) {
       // User agent indicates an iPhone
       res.setHeader('Content-Type', 'text/vcard; charset=utf-8');
       res.setHeader('Content-Disposition', `inline; filename=${contact.fullName}.vcf`);
       res.send(vCardString);
-    } else if (/mobile|android/i.test(userAgent)) {
+    } else if (/android/i.test(userAgent)) {
       // User agent indicates an Android phone
       const vCardUri = encodeURIComponent(vCardString);
       const intentUri = `intent://create_contact/#Intent;scheme=data;action=android.intent.action.INSERT;type=text/x-vcard;S.vcard=${vCardUri};end`;
