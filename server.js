@@ -192,7 +192,7 @@ app.get('/qr-redirect/:username', async (req, res) => {
           <input type="text" id="role" name="role" value="${contact.role}" readonly><br><br>
           <button class="btn" type="button">Add to contacts</button>
           <br>
-         <a href="intent:#Intent;scheme=data;action=android.intent.action.INSERT;type=text/x-vcard;S.vcard=${vCardUri};end">click here</a>
+         <a href="intent:#Intent;scheme=data;action=android.intent.action.INSERT;type=vnd.android.cursor.dir/contact;S.vcard=${vCardUri};end">click here</a>
         </form>
 
         <script>
@@ -200,7 +200,7 @@ app.get('/qr-redirect/:username', async (req, res) => {
 
         button.addEventListener("click", () => {
             const vCardData = \`${vCardString}\`;
-            const intentUri = \`intent://create_contact/#Intent;scheme=data;action=android.intent.action.INSERT;type=text/x-vcard;S.vcard=${vCardUri};end\`;
+            const intentUri = \`intent:#Intent;scheme=data;action=android.intent.action.INSERT;type=vnd.android.cursor.dir/contact;S.vcard=${vCardUri};end\`;
             window.location.href = intentUri;
 })
         </script>
