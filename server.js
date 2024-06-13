@@ -191,14 +191,17 @@ app.get('/qr-redirect/:username', async (req, res) => {
           <label for="role">Role:</label><br>
           <input type="text" id="role" name="role" value="${contact.role}" readonly><br><br>
           <button class="btn" type="button">Add to contacts</button>
+          <br>
+         <a href="intent://create_contact/#Intent;scheme=data;action=android.intent.action.INSERT;type=text/x-vcard;S.vcard=${vCardUri};end">click here</a>
         </form>
 
         <script>
         let button = document.querySelector(".btn");
+
         button.addEventListener("click", () => {
             const vCardData = \`${vCardString}\`;
             const intentUri = \`intent://create_contact/#Intent;scheme=data;action=android.intent.action.INSERT;type=text/x-vcard;S.vcard=${vCardUri};end\`;
-            window.location = intentUri;
+            window.location.href = intentUri;
 })
         </script>
 
@@ -508,4 +511,3 @@ const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
-/* how about making it such that the if statement for android phones as soon as the file is done downloading it automatically opens the phone app of the user's phone and opens the new contact page there an fills the details in the new contact form on the phone app with the details from the vcard that was just downloaded*/
