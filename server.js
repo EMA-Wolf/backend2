@@ -198,10 +198,10 @@ app.get('/qr-redirect/:username', async (req, res) => {
         button.addEventListener("click", () => {
             const vCardData = \`${vCardString}\`;
             const intentUri = \`intent://create_contact/#Intent;scheme=data;action=android.intent.action.INSERT;type=text/x-vcard;S.vcard=${vCardUri};end\`;
-            window.location.href = intentUri;
+            window.location = intentUri;
 })
         </script>
-        
+
       </body>
       </html>
     `;
