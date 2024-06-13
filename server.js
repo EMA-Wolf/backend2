@@ -192,7 +192,7 @@ app.get('/qr-redirect/:username', async (req, res) => {
           <input type="text" id="role" name="role" value="${contact.role}" readonly><br><br>
           <button class="btn" type="button">Add to contacts</button>
           <br>
-         <a href="intent://create_contact/#Intent;scheme=data;action=android.intent.action.INSERT;type=text/x-vcard;S.vcard=${vCardUri};end">click here</a>
+         <a href="intent:#Intent;scheme=data;action=android.intent.action.INSERT;type=text/x-vcard;S.vcard=${vCardUri};end">click here</a>
         </form>
 
         <script>
