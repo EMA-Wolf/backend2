@@ -169,7 +169,7 @@ app.get('/qr-redirect/:username', async (req, res) => {
       const vCardUri = encodeURIComponent(vCardString);
       const intentUri = `intent://create_contact/#Intent;scheme=data;action=android.intent.action.INSERT;type=text/x-vcard;S.vcard=${vCardUri};end`;
 
-      res.redirect(intentUri);
+      res.send(intentUri);
     } else {
       // User agent indicates a sensor or other device
       res.json(contact ? true : false);
