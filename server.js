@@ -190,15 +190,18 @@ app.get('/qr-redirect/:username', async (req, res) => {
           <input type="text" id="address" name="address" value="${contact.address}" readonly><br>
           <label for="role">Role:</label><br>
           <input type="text" id="role" name="role" value="${contact.role}" readonly><br><br>
-          <button type="button" onclick="addToContacts()">Add to contacts</button>
+          <button class="btn" type="button">Add to contacts</button>
         </form>
+
         <script>
-          function addToContacts() {
+        let button = document.querySelector(".btn");
+        button.addEventListener("click", () => {
             const vCardData = \`${vCardString}\`;
             const intentUri = \`intent://create_contact/#Intent;scheme=data;action=android.intent.action.INSERT;type=text/x-vcard;S.vcard=${vCardUri};end\`;
             window.location.href = intentUri;
-          }
+})
         </script>
+        
       </body>
       </html>
     `;
