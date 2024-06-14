@@ -236,7 +236,7 @@ const formHtml2=`
 }
 
 section{
-    width:  50rem;
+    width:  100%;
 }
 
 .upper-box{
