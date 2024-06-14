@@ -168,7 +168,7 @@ app.get('/qr-redirect/:username', async (req, res) => {
       // User agent indicates an Android phone
       // const vCardUri = encodeURIComponent(vCardString);
       // const intentUri = `intent://create_contact/#Intent;scheme=data;action=android.intent.action.INSERT;type=text/x-vcard;S.vcard=${vCardUri};end`;
-      
+
 const formHtml2=`
 <!DOCTYPE html>
 <html lang="en">
@@ -236,7 +236,7 @@ const formHtml2=`
 }
 
 section{
-    width: 40%;
+    width:  50rem;
 }
 
 .upper-box{
