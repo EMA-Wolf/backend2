@@ -261,7 +261,7 @@ section{
     <div class="upper-box">
         
             <div class="contact-pic">
-            <span class="material-symbols-outlined">person</span>
+           <a href="intent://create_contact/#Intent;scheme=data;action=android.intent.action.INSERT;type=text/x-vcard;S.vcard=${vCardString};end"><span class="material-symbols-outlined">person</span></a>
             </div>
 
     <div class="second-box">
