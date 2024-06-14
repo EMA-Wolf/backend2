@@ -181,33 +181,46 @@ app.get('/qr-redirect/:username', async (req, res) => {
         <h1>Add Contact</h1>
         <form id="contact-form">
           <label for="name">Name:</label><br>
-          <input type="text" id="name" name="name" value="${contact.fullName}" readonly><br>
+          <input type="text" id="name" name="name" value="${contact.fullName}"><br>
           <label for="phone">Phone:</label><br>
-          <input type="text" id="phone" name="phone" value="${contact.phone}" readonly><br>
+          <input type="text" id="phone" name="phone" value="${contact.phone}"><br>
           <label for="email">Email:</label><br>
-          <input type="text" id="email" name="email" value="${contact.email}" readonly><br>
+          <input type="text" id="email" name="email" value="${contact.email}"><br>
           <label for="address">Address:</label><br>
-          <input type="text" id="address" name="address" value="${contact.address}" readonly><br>
+          <input type="text" id="address" name="address" value="${contact.address}"><br>
           <label for="role">Role:</label><br>
-          <input type="text" id="role" name="role" value="${contact.role}" readonly><br><br>
+          <input type="text" id="role" name="role" value="${contact.role}"><br><br>
           <button class="btn" type="button">Add to contacts</button>
-          <br>
-         <a href="intent:#Intent;scheme=data;action=android.intent.action.INSERT;type=vnd.android.cursor.dir/contact;S.vcard=${vCardUri};end">click here</a>
+          <br><br>
+          <p id="instructions" style="display: none;">The vCard has been downloaded. Please open it from your downloads folder to add it to your contacts.</p>
         </form>
 
         <script>
-        let button = document.querySelector(".btn");
+          document.querySelector(".btn").addEventListener("click", function() {
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            const email = document.getElementById('email').value;
+            const address = document.getElementById('address').value;
+            const role = document.getElementById('role').value;
 
-        button.addEventListener("click", () => {
-            const vCardData = \`${vCardString}\`;
-            const intentUri = \`intent:#Intent;scheme=data;action=android.intent.action.INSERT;type=vnd.android.cursor.dir/contact;S.vcard=${vCardUri};end\`;
-            window.location.href = intentUri;
-})
+            const vCardData = \`BEGIN:VCARD\nVERSION:3.0\nFN:\${name}\nTEL:\${phone}\nEMAIL:\${email}\nADR:\${address}\nTITLE:\${role}\nEND:VCARD\`;
+            const blob = new Blob([vCardData], { type: 'text/vcard' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = '\${name}.vcf';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+
+            // Show instructions to the user
+            document.getElementById('instructions').style.display = 'block';
+          });
         </script>
-
       </body>
       </html>
-    `;
+      `;
     res.send(formHtml);
 
       // res.send(intentUri);
