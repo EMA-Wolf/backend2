@@ -166,36 +166,145 @@ app.get('/qr-redirect/:username', async (req, res) => {
       res.send(vCardString);
     } else if (/android/i.test(userAgent)) {
       // User agent indicates an Android phone
-      const vCardUri = encodeURIComponent(vCardString);
+      // const vCardUri = encodeURIComponent(vCardString);
       // const intentUri = `intent://create_contact/#Intent;scheme=data;action=android.intent.action.INSERT;type=text/x-vcard;S.vcard=${vCardUri};end`;
+      
+const formHtml2=`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <title>Add Contact</title>
 
-      const formHtml = `
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Add Contact</title>
-      </head>
-      <body>
-        <h1>Add Contact</h1>
-        <form id="contact-form">
-          <label for="name">Name:</label><br>
-          <a href="mailto:${contact.email}">${contact.fullName}</a><br>
-          <label for="phone">Phone:</label><br>
-          <a href="tel:${contact.phone}">${contact.phone}</a><br>
-          <label for="email">Email:</label><br>
-          <a href="mailto:${contact.email}">${contact.email}</a><br>
-          <label for="address">Address:</label><br>
-          <a href="geo:0,0?q=${encodeURIComponent(contact.address)}">${contact.address}</a><br>
-          <label for="role">Role:</label><br>
-          <a href="#">${contact.role}</a><br><br>
-          <button class="btn" type="button">Add to contacts</button>
-          <br><br>
-          <p id="instructions" style="display: none;">The vCard has been downloaded. Please open it from your downloads folder to add it to your contacts.</p>
-        </form>
+<style>
+    body{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
 
-        <script>
+    form{
+        box-shadow: 0px 1px 7px 5px  rgb(212, 211, 211);
+        padding: 0.5rem;
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin-top:1rem ;
+    }
+
+.box{
+    background-color: rgb(218, 214, 214);
+    border-radius: 5rem;
+    padding: 0.5rem;
+
+}
+
+.box>a{
+    color: black;
+}
+
+.box a>span{
+    font-size: 2.2rem;
+}
+.contact-pic, .second-box{
+    display: flex;
+    justify-content: center;
+}
+
+.contact-pic>span{
+    font-size: 15rem;
+}
+
+.address{
+    margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+    font-size: 1.2rem;
+    gap: 0.5rem;
+}
+
+.address a, .details span{
+    color: rgb(0, 60, 255);
+}
+
+.details{
+    display: flex;
+    gap: 1rem;
+    font-size: 1.2rem;
+}
+
+section{
+    width: 40%;
+}
+
+.upper-box{
+    box-shadow: 0px 1px 7px 5px  rgb(212, 211, 211);
+    padding-bottom: 1rem;
+}
+
+
+.btn{
+    padding: 1rem;
+    width: 10rem;
+}
+</style>
+  </style>
+
+</head>
+<body>
+
+<section>
+
+
+    <div class="upper-box">
+        
+            <div class="contact-pic">
+            <span class="material-symbols-outlined">person</span>
+            </div>
+
+    <div class="second-box">
+        <div class="details">
+            <label for="name">${contact.fullName}</label>
+            <label for="address">Role: <span>${contact.role}</span></label>
+        </div>
+
+        </div>
+        
+
+        <div class="address">
+                <span for="address">Address:</span>
+               <a href="geo:0,0?q=${encodeURIComponent(contact.address)}">${contact.address}</a>
+        </div>
+        
+
+    </div>
+  
+
+<form id="contact-form">
+
+      <div class="box">
+        <a href="tel:${contact.phone}"><span class="material-symbols-outlined">call</span></a><br>
+    </div>
+
+    <div class="box">
+        <a href="mailto:${contact.email}"><span class="material-symbols-outlined">mail</span></a><br>
+    </div>
+  
+   
+</form>
+</section>
+
+<p>Or click below to download:</p>
+
+  <div class="download">
+ <button class="btn" type="button">Add to contacts</button>
+  </div>
+
+  <p id="instructions" style="display: none;">The vCard has been downloaded. Please open it from your downloads folder to add it to your contacts.</p>
+
+    <script>
           document.querySelector(".btn").addEventListener("click", function() {
             const vCardData = \`${vCardString}\`;
             const blob = new Blob([vCardData], { type: 'text/vcard' });
@@ -214,8 +323,59 @@ app.get('/qr-redirect/:username', async (req, res) => {
         </script>
       </body>
       </html>
-      `;
-    res.send(formHtml);
+
+</body>
+
+`
+
+
+      // const formHtml = `
+      // <!DOCTYPE html>
+      // <html lang="en">
+      // <head>
+      //   <meta charset="UTF-8">
+      //   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      //   <title>Add Contact</title>
+      // </head>
+      // <body>
+      //   <h1>Add Contact</h1>
+      //   <form id="contact-form">
+      //     <label for="name">Name:</label><br>
+      //     <a href="mailto:${contact.email}">${contact.fullName}</a><br>
+      //     <label for="phone">Phone:</label><br>
+      //     <a href="tel:${contact.phone}">${contact.phone}</a><br>
+      //     <label for="email">Email:</label><br>
+      //     <a href="mailto:${contact.email}">${contact.email}</a><br>
+      //     <label for="address">Address:</label><br>
+      //     <a href="geo:0,0?q=${encodeURIComponent(contact.address)}">${contact.address}</a><br>
+      //     <label for="role">Role:</label><br>
+      //     <a href="#">${contact.role}</a><br><br>
+      //     <button class="btn" type="button">Add to contacts</button>
+      //     <br><br>
+      //     <p id="instructions" style="display: none;">The vCard has been downloaded. Please open it from your downloads folder to add it to your contacts.</p>
+      //   </form>
+
+      //   <script>
+      //     document.querySelector(".btn").addEventListener("click", function() {
+      //       const vCardData = \`${vCardString}\`;
+      //       const blob = new Blob([vCardData], { type: 'text/vcard' });
+      //       const url = window.URL.createObjectURL(blob);
+      //       const a = document.createElement('a');
+      //       a.style.display = 'none';
+      //       a.href = url;
+      //       a.download = '${contact.fullName}.vcf';
+      //       document.body.appendChild(a);
+      //       a.click();
+      //       window.URL.revokeObjectURL(url);
+
+      //       // Show instructions to the user
+      //       document.getElementById('instructions').style.display = 'block';
+      //     });
+      //   </script>
+      // </body>
+      // </html>
+      // `;
+    res.send(formHtml2);
 
       // res.send(intentUri);
     } else {
