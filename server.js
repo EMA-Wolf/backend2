@@ -181,15 +181,15 @@ app.get('/qr-redirect/:username', async (req, res) => {
         <h1>Add Contact</h1>
         <form id="contact-form">
           <label for="name">Name:</label><br>
-          <input type="text" id="name" name="name" value="${contact.fullName}"><br>
+          <a href="mailto:${contact.email}">${contact.fullName}</a><br>
           <label for="phone">Phone:</label><br>
-          <input type="text" id="phone" name="phone" value="${contact.phone}"><br>
+          <a href="tel:${contact.phone}">${contact.phone}</a><br>
           <label for="email">Email:</label><br>
-          <input type="text" id="email" name="email" value="${contact.email}"><br>
+          <a href="mailto:${contact.email}">${contact.email}</a><br>
           <label for="address">Address:</label><br>
-          <input type="text" id="address" name="address" value="${contact.address}"><br>
+          <a href="geo:0,0?q=${encodeURIComponent(contact.address)}">${contact.address}</a><br>
           <label for="role">Role:</label><br>
-          <input type="text" id="role" name="role" value="${contact.role}"><br><br>
+          <a href="#">${contact.role}</a><br><br>
           <button class="btn" type="button">Add to contacts</button>
           <br><br>
           <p id="instructions" style="display: none;">The vCard has been downloaded. Please open it from your downloads folder to add it to your contacts.</p>
@@ -197,19 +197,13 @@ app.get('/qr-redirect/:username', async (req, res) => {
 
         <script>
           document.querySelector(".btn").addEventListener("click", function() {
-            const name = document.getElementById('name').value;
-            const phone = document.getElementById('phone').value;
-            const email = document.getElementById('email').value;
-            const address = document.getElementById('address').value;
-            const role = document.getElementById('role').value;
-
-            const vCardData = \`BEGIN:VCARD\nVERSION:3.0\nFN:\${name}\nTEL:\${phone}\nEMAIL:\${email}\nADR:\${address}\nTITLE:\${role}\nEND:VCARD\`;
+            const vCardData = \`${vCardString}\`;
             const blob = new Blob([vCardData], { type: 'text/vcard' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.style.display = 'none';
             a.href = url;
-            a.download = '\${name}.vcf';
+            a.download = '${contact.fullName}.vcf';
             document.body.appendChild(a);
             a.click();
             window.URL.revokeObjectURL(url);
